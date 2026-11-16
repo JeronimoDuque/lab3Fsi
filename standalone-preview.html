@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM Sales Intelligence Dashboard | B2B Revenue MVP</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              bone: '#fbfbfa',
+              surface: '#faf9f5',
+              border: '#ecebe6',
+              coral: '#ea580c',
+              coralLight: '#ffedd5',
+              coralDark: '#c2410c',
+              emerald: '#10b981',
+              emeraldLight: '#f0fdf4',
+              emeraldBorder: '#bbf7d0',
+              indigo: '#6366f1',
+              amber: '#f59e0b',
+              rose: '#f43f5e',
+            }
+          },
+          boxShadow: {
+            '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+            'card': '0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02)',
+            'window': '0 25px 60px -15px rgba(0, 0, 0, 0.16)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone for In-Browser JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      background-color: #e5e3da;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #dcd9cf;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #c2beb2;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-2 sm:p-5 lg:p-7 flex items-center justify-center">
+
+  <div id="root" class="w-full max-w-[1520px]"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    // ==========================================
+    // 1. DATA STORE (Directamente alineado con mockData.js)
+    // ==========================================
+    const initialUsers = [
+      {
+        id: "u1",
+        full_name: "Ana García",
+        email: "ana.garcia@salescorp.io",
+        role: "sales_rep",
+        avatar_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&auto=format&fit=crop&q=80",
+        quota_amount: 85000,
+        status: "active"
+      },
+      {
+        id: "u2",
+        full_name: "Carlos Mendoza",
+        email: "carlos.mendoza@salescorp.io",
+        role: "sales_rep",
+        avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80",
+        quota_amount: 80000,
+        status: "active"
+      },
+      {
+        id: "u3",
+        full_name: "Elena Ramos",
+        email: "elena.ramos@salescorp.io",
+        role: "sales_rep",
+        avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80",
+        quota_amount: 90000,
+        status: "active"
+      },
+      {
+        id: "u4",
+        full_name: "Javier Morales",
+        email: "javier.morales@salescorp.io",
+        role: "sales_rep",
+        avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&auto=format&fit=crop&q=80",
+        quota_amount: 75000,
+        status: "active"
+      },
+      {
+        id: "u5",
+        full_name: "Sofía Chen",
+        email: "sofia.chen@salescorp.io",
+        role: "manager",
+        avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=160&auto=format&fit=crop&q=80",
+        quota_amount: 110000,
+        status: "active"
+      }
+    ];
+
+    const initialStages = [
+      { id: "s1", name: "Prospect", display_order: 1, win_probability: 10, color: "#94a3b8" },
+      { id: "s2", name: "Lead", display_order: 2, win_probability: 30, color: "#6366f1" },
+      { id: "s3", name: "Negotiation", display_order: 3, win_probability: 60, color: "#ea580c" }, // Naranja vibrante
+      { id: "s4", name: "Closed Won", display_order: 4, win_probability: 100, color: "#10b981" }, // Verde
+      { id: "s5", name: "Closed Lost", display_order: 5, win_probability: 0, color: "#f43f5e" }   // Rojo suave
+    ];
+
+    const initialCustomers = [
+      { id: "c1", company_name: "TechSolutions SL", industry: "Software & SaaS", contact_person: "Carlos Ruiz" },
+      { id: "c2", company_name: "Nexus Retail Global", industry: "Retail & E-com", contact_person: "Marta Gómez" },
+      { id: "c3", company_name: "FinEdge Payments", industry: "FinTech", contact_person: "Diego Alarcón" },
+      { id: "c4", company_name: "MedHealth Diagnostics", industry: "Healthcare", contact_person: "Dra. Lucía Beltrán" },
+      { id: "c5", company_name: "CloudSync Systems", industry: "Cloud & DevOps", contact_person: "Raúl Ibáñez" },
+      { id: "c6", company_name: "Iberica Logística 4.0", industry: "Logistics", contact_person: "Patricia Soria" },
+      { id: "c7", company_name: "DataBridge Analytics", industry: "AI & Big Data", contact_person: "Víctor Navas" },
+      { id: "c8", company_name: "AgroTech Futura", industry: "AgriTech", contact_person: "Inés Carmona" },
+      { id: "c9", company_name: "EduLearn Digital", industry: "EdTech", contact_person: "Manuel Varela" },
+      { id: "c10", company_name: "CyberShield Security", industry: "Cybersecurity", contact_person: "Sara Montero" }
+    ];
+
+    const initialDeals = [
+      { id: "d1", title: "Licencia Enterprise Anual 2024", customer_id: "c1", owner_id: "u1", stage_id: "s4", amount: 32000, currency: "EUR", status: "won", created_at: "2024-04-02T10:00:00Z", closed_at: "2024-04-20T14:30:00Z" },
+      { id: "d2", title: "Renovación Anual Suite Omnicanal", customer_id: "c2", owner_id: "u1", stage_id: "s3", amount: 18500, currency: "EUR", status: "open", created_at: "2024-05-01T09:00:00Z", expected_close_date: "2024-06-15" },
+      { id: "d3", title: "Plataforma Core Banking API", customer_id: "c3", owner_id: "u3", stage_id: "s4", amount: 48000, currency: "EUR", status: "won", created_at: "2024-04-10T11:00:00Z", closed_at: "2024-05-04T16:00:00Z" },
+      { id: "d4", title: "Integración HIS Hospitalario", customer_id: "c4", owner_id: "u2", stage_id: "s3", amount: 27500, currency: "EUR", status: "open", created_at: "2024-05-05T08:30:00Z", expected_close_date: "2024-06-20" },
+      { id: "d5", title: "Migración Multi-Cloud DevSecOps", customer_id: "c5", owner_id: "u4", stage_id: "s5", amount: 22000, currency: "EUR", status: "lost", created_at: "2024-03-25T14:00:00Z", closed_at: "2024-04-18T10:15:00Z", loss_reason: "competencia (precio)" },
+      { id: "d6", title: "Optimización Rutas TMS Flota", customer_id: "c6", owner_id: "u2", stage_id: "s4", amount: 39000, currency: "EUR", status: "won", created_at: "2024-04-12T15:20:00Z", closed_at: "2024-05-10T11:45:00Z" },
+      { id: "d7", title: "Data Lakehouse & Pipeline ETL", customer_id: "c7", owner_id: "u3", stage_id: "s4", amount: 54000, currency: "EUR", status: "won", created_at: "2024-03-15T10:40:00Z", closed_at: "2024-04-28T17:00:00Z" },
+      { id: "d8", title: "Sensores IoT Telemetría Agrícola", customer_id: "c8", owner_id: "u4", stage_id: "s2", amount: 16000, currency: "EUR", status: "open", created_at: "2024-05-12T09:15:00Z", expected_close_date: "2024-06-30" },
+      { id: "d9", title: "Campus Virtual LMS 5.000 users", customer_id: "c9", owner_id: "u1", stage_id: "s4", amount: 29500, currency: "EUR", status: "won", created_at: "2024-04-05T13:00:00Z", closed_at: "2024-05-18T12:30:00Z" },
+      { id: "d10", title: "SOC Gestionado 24/7 y EDR", customer_id: "c10", owner_id: "u5", stage_id: "s4", amount: 62000, currency: "EUR", status: "won", created_at: "2024-03-20T10:00:00Z", closed_at: "2024-05-02T18:00:00Z" },
+      { id: "d11", title: "Módulo Add-on IA Predictiva", customer_id: "c1", owner_id: "u1", stage_id: "s3", amount: 14000, currency: "EUR", status: "open", created_at: "2024-05-08T16:00:00Z", expected_close_date: "2024-06-12" },
+      { id: "d12", title: "Puntos de Venta Cloud 45 Tiendas", customer_id: "c2", owner_id: "u2", stage_id: "s4", amount: 36000, currency: "EUR", status: "won", created_at: "2024-04-18T10:30:00Z", closed_at: "2024-05-22T14:10:00Z" },
+      { id: "d13", title: "Gateway Antifraude y Compliance", customer_id: "c3", owner_id: "u3", stage_id: "s3", amount: 31000, currency: "EUR", status: "open", created_at: "2024-05-14T11:45:00Z", expected_close_date: "2024-06-25" },
+      { id: "d14", title: "Portal Paciente y Teleconsulta", customer_id: "c4", owner_id: "u4", stage_id: "s5", amount: 19000, currency: "EUR", status: "lost", created_at: "2024-03-10T14:20:00Z", closed_at: "2024-04-15T09:00:00Z", loss_reason: "falta de presupuesto" },
+      { id: "d15", title: "Auditoría Kubernetes & CI/CD", customer_id: "c5", owner_id: "u5", stage_id: "s1", amount: 12500, currency: "EUR", status: "open", created_at: "2024-05-20T15:00:00Z", expected_close_date: "2024-07-15" },
+      { id: "d16", title: "App Conductor y Prueba de Entrega", customer_id: "c6", owner_id: "u2", stage_id: "s2", amount: 15500, currency: "EUR", status: "open", created_at: "2024-05-16T12:10:00Z", expected_close_date: "2024-07-01" },
+      { id: "d17", title: "Cuadro de Mando Ejecutivo PowerBI", customer_id: "c7", owner_id: "u3", stage_id: "s4", amount: 26000, currency: "EUR", status: "won", created_at: "2024-04-22T09:00:00Z", closed_at: "2024-05-25T16:40:00Z" },
+      { id: "d18", title: "Sistema Riego Automatizado IoT", customer_id: "c8", owner_id: "u4", stage_id: "s1", amount: 9800, currency: "EUR", status: "open", created_at: "2024-05-22T10:30:00Z", expected_close_date: "2024-07-20" },
+      { id: "d19", title: "Proctoring Seguro para Exámenes", customer_id: "c9", owner_id: "u1", stage_id: "s5", amount: 14500, currency: "EUR", status: "lost", created_at: "2024-04-01T11:00:00Z", closed_at: "2024-05-02T10:30:00Z", loss_reason: "retraso de ciclo" },
+      { id: "d20", title: "Pentesting & Simulación Red Team", customer_id: "c10", owner_id: "u5", stage_id: "s3", amount: 24000, currency: "EUR", status: "open", created_at: "2024-05-11T13:40:00Z", expected_close_date: "2024-06-18" },
+      { id: "d21", title: "Migración DB Oracle a Postgres", customer_id: "c1", owner_id: "u2", stage_id: "s4", amount: 41000, currency: "EUR", status: "won", created_at: "2024-03-30T10:00:00Z", closed_at: "2024-05-15T15:20:00Z" },
+      { id: "d22", title: "Recomendador IA E-commerce", customer_id: "c2", owner_id: "u3", stage_id: "s2", amount: 21500, currency: "EUR", status: "open", created_at: "2024-05-18T14:15:00Z", expected_close_date: "2024-07-10" },
+      { id: "d23", title: "Infraestructura B2B Open Banking", customer_id: "c3", owner_id: "u5", stage_id: "s4", amount: 58000, currency: "EUR", status: "won", created_at: "2024-04-05T09:30:00Z", closed_at: "2024-05-28T17:15:00Z" },
+      { id: "d24", title: "Interconexión Laboratorios Clínicos", customer_id: "c4", owner_id: "u4", stage_id: "s1", amount: 17200, currency: "EUR", status: "open", created_at: "2024-05-24T16:00:00Z", expected_close_date: "2024-07-25" },
+      { id: "d25", title: "Contenedores Docker y Clusters", customer_id: "c5", owner_id: "u1", stage_id: "s4", amount: 23000, currency: "EUR", status: "won", created_at: "2024-04-14T10:00:00Z", closed_at: "2024-05-19T11:00:00Z" },
+      { id: "d26", title: "Visibilidad Cadena Frío Tránsito", customer_id: "c6", owner_id: "u2", stage_id: "s3", amount: 28500, currency: "EUR", status: "open", created_at: "2024-05-15T08:50:00Z", expected_close_date: "2024-06-28" },
+      { id: "d27", title: "Warehouse Analítico Snowflake", customer_id: "c7", owner_id: "u3", stage_id: "s5", amount: 37000, currency: "EUR", status: "lost", created_at: "2024-03-12T14:00:00Z", closed_at: "2024-04-25T16:30:00Z", loss_reason: "cambio de CTO" },
+      { id: "d28", title: "Certificación ISO 27001 Compliance", customer_id: "c10", owner_id: "u5", stage_id: "s4", amount: 34000, currency: "EUR", status: "won", created_at: "2024-04-08T11:20:00Z", closed_at: "2024-05-26T15:00:00Z" }
+    ];
+
+    // ==========================================
+    // 2. ICONOS SVG OPTIMIZADOS
+    // ==========================================
+    const Icons = {
+      Dashboard: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1.5" strokeWidth="2"/><rect x="14" y="3" width="7" height="5" rx="1.5" strokeWidth="2"/><rect x="14" y="12" width="7" height="9" rx="1.5" strokeWidth="2"/><rect x="3" y="16" width="7" height="5" rx="1.5" strokeWidth="2"/></svg>,
+      FileText: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
+      GitFork: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="18" r="3" strokeWidth="2"/><circle cx="6" cy="6" r="3" strokeWidth="2"/><circle cx="18" cy="6" r="3" strokeWidth="2"/><path strokeWidth="2" d="M18 9v1a2 2 0 01-2 2H8a2 2 0 01-2-2V9m6 3v3"/></svg>,
+      TrendingUp: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>,
+      Dollar: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 10v2m-2.599-7A2.99 2.99 0 0112 8m0 8c-1.11 0-2.08-.402-2.599-1"/></svg>,
+      Briefcase: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" strokeWidth="2"/><path strokeWidth="2" d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>,
+      PieChart: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>,
+      BarChart: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>,
+      Sparkles: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>,
+      Search: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8" strokeWidth="2"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35"/></svg>,
+      Bell: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>,
+      Shield: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>,
+      ChevronDown: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>,
+      ChevronRight: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>,
+      ArrowUpRight: () => <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7m0 0H7m10 0v10"/></svg>,
+      Plus: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"/></svg>,
+      X: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>,
+      Calendar: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2"/><path strokeWidth="2" d="M16 2v4M8 2v4m-5 4h18"/></svg>,
+      Check: () => <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"/></svg>
+    };
+
+    // ==========================================
+    // 3. COMPONENTE PRINCIPAL APP
+    // ==========================================
+    function App() {
+      const [deals, setDeals] = useState(initialDeals);
+      const [stages] = useState(initialStages);
+      const [customers] = useState(initialCustomers);
+      const [users] = useState(initialUsers);
+
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [dateRange] = useState('1 June - 30 June 2026');
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const [bannerVisible, setBannerVisible] = useState(true);
+
+      // Mapas auxiliares
+      const customerMap = useMemo(() => Object.fromEntries(customers.map(c => [c.id, c])), [customers]);
+      const userMap = useMemo(() => Object.fromEntries(users.map(u => [u.id, u])), [users]);
+      const stageMap = useMemo(() => Object.fromEntries(stages.map(s => [s.id, s])), [stages]);
+
+      // ------------------------------------------
+      // CÁLCULOS ESTRICTAMENTE DINÁMICOS DE KPIS
+      // ------------------------------------------
+      const wonDeals = useMemo(() => deals.filter(d => d.status === 'won'), [deals]);
+      const lostDeals = useMemo(() => deals.filter(d => d.status === 'lost'), [deals]);
+      const openDeals = useMemo(() => deals.filter(d => d.status === 'open'), [deals]);
+
+      // KPI 1: Total Revenue = Suma de amount donde status = 'won'
+      const totalRevenue = useMemo(() => wonDeals.reduce((sum, d) => sum + (Number(d.amount) || 0), 0), [wonDeals]);
+
+      // KPI 2: Active Deals = Conteo donde status = 'open'
+      const activeDealsCount = openDeals.length;
+      const activePipelineValue = useMemo(() => openDeals.reduce((sum, d) => sum + (Number(d.amount) || 0), 0), [openDeals]);
+
+      // KPI 3: Win Rate = % deals ganados sobre cerrados
+      const closedCount = wonDeals.length + lostDeals.length;
+      const winRate = closedCount > 0 ? ((wonDeals.length / closedCount) * 100).toFixed(1) : '0.0';
+
+      // KPI 4: Avg Deal Size = Promedio de valor de venta
+      const avgDealSize = wonDeals.length > 0 ? Math.round(totalRevenue / wonDeals.length) : 0;
+
+      // Actualizar estado de un trato directamente en vivo
+      const handleUpdateDealStatus = (dealId, newStatus) => {
+        setDeals(prev => prev.map(deal => {
+          if (deal.id !== dealId) return deal;
+          let newStageId = deal.stage_id;
+          let closedAt = deal.closed_at;
+
+          if (newStatus === 'won') {
+            newStageId = 's4'; // Closed Won
+            closedAt = new Date().toISOString();
+          } else if (newStatus === 'lost') {
+            newStageId = 's5'; // Closed Lost
+            closedAt = new Date().toISOString();
+          } else if (newStatus === 'open') {
+            newStageId = 's3'; // Negotiation
+            closedAt = undefined;
+          }
+
+          return { ...deal, status: newStatus, stage_id: newStageId, closed_at: closedAt };
+        }));
+      };
+
+      // Agregar nueva oportunidad
+      const handleAddDeal = (newDeal) => {
+        setDeals(prev => [newDeal, ...prev]);
+      };
+
+      return (
+        <div className="bg-[#fbfbfa] rounded-[28px] shadow-window border border-[#d6d3c9] overflow-hidden flex flex-col md:flex-row h-[94vh] max-h-[1100px]">
+          {/* SIDEBAR */}
+          <aside className="w-64 flex-shrink-0 bg-[#fbfbfa] border-r border-[#ecebe6] flex flex-col justify-between select-none">
+            <div className="p-4 space-y-4">
+              {/* Workspace Selector */}
+              <div className="flex items-center justify-between p-2 rounded-xl hover:bg-neutral-200/50 cursor-pointer transition-colors group">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-neutral-900 flex items-center justify-center text-white font-bold text-xs shadow-xs">
+                    ❖
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-1">
+                      <span className="font-semibold text-xs text-neutral-900 tracking-tight">AI CRM Intelligence</span>
+                      <Icons.ChevronDown />
+                    </div>
+                    <p className="text-[10px] text-neutral-400 font-medium">B2B Sales Velocity</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Search Bar with / key */}
+              <div className="relative">
+                <div className="absolute left-3 top-2.5 text-neutral-400"><Icons.Search /></div>
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  readOnly
+                  className="w-full pl-8 pr-7 py-1.5 text-xs bg-[#f2f1ec] text-neutral-700 placeholder-neutral-400 rounded-lg border-0 focus:outline-none cursor-default"
+                />
+                <span className="absolute right-2.5 top-2 text-[10px] bg-white border border-neutral-200 text-neutral-400 px-1 rounded font-mono shadow-2xs">/</span>
+              </div>
+
+              {/* Navigation Menu */}
+              <nav className="space-y-4 pt-1 overflow-y-auto max-h-[calc(100vh-260px)] pr-1 custom-scrollbar">
+                <div>
+                  <h4 className="text-[10px] font-bold text-neutral-400 tracking-wider uppercase px-2.5 mb-1.5">OVERVIEW</h4>
+                  <div className="space-y-0.5">
+                    {[
+                      { id: 'dashboard', label: 'Dashboard', icon: Icons.Dashboard },
+                      { id: 'exec_summary', label: 'Executive Summary', icon: Icons.FileText },
+                      { id: 'stages', label: 'Pipeline Stages', icon: Icons.GitFork },
+                      { id: 'performance', label: 'Performance Overview', icon: Icons.BarChart }
+                    ].map(item => {
+                      const Icon = item.icon;
+                      const isActive = activeTab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setActiveTab(item.id)}
+                          className={`w-full flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-[#ffedd5] text-[#c2410c] font-semibold shadow-2xs"
+                              : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/40"
+                          }`}
+                        >
+                          <span className={isActive ? "text-[#ea580c]" : "text-neutral-400"}><Icon /></span>
+                          <span className="truncate">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-[10px] font-bold text-neutral-400 tracking-wider uppercase px-2.5 mb-1.5">ANALYTICS</h4>
+                  <div className="space-y-0.5 text-neutral-600">
+                    {[
+                      { id: 'forecast', label: 'Revenue Forecast', icon: Icons.TrendingUp },
+                      { id: 'winloss', label: 'Win / Loss Analysis', icon: Icons.PieChart },
+                      { id: 'leaderboard', label: 'Rep Rankings', icon: Icons.Dollar }
+                    ].map(item => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setActiveTab(item.id)}
+                          className="w-full flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/40 transition-colors"
+                        >
+                          <span className="text-neutral-400"><Icon /></span>
+                          <span className="truncate">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </nav>
+            </div>
+
+            {/* Bottom Profile Pill */}
+            <div className="p-3 border-t border-[#ecebe6] bg-[#f8f7f3]">
+              <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-neutral-200/80 shadow-2xs">
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 rounded-md bg-[#059669] flex items-center justify-center text-white text-[10px] font-bold">
+                    CA
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-xs font-semibold text-neutral-800">Cansaas Agency</p>
+                    <p className="text-[10px] text-neutral-400">cansaas.io@sales.com</p>
+                  </div>
+                </div>
+                <span className="text-neutral-400 text-xs">⚙</span>
+              </div>
+            </div>
+          </aside>
+
+          {/* MAIN CONTENT */}
+          <div className="flex-1 flex flex-col overflow-hidden bg-[#faf9f5]">
+            {/* HEADER */}
+            <header className="px-8 pt-6 pb-4 bg-white/70 backdrop-blur-md border-b border-[#ecebe6] flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-xl font-bold text-neutral-900 tracking-tight">Dashboard</h1>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Track and improve your pipeline performance, team revenue, and deal conversions.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2.5">
+                <button
+                  onClick={() => alert("MVP Feedback: Todo el cálculo de ingresos y KPIs se ejecuta de forma dinámica sobre el array de Deals.")}
+                  className="text-xs font-medium text-neutral-600 hover:text-neutral-900 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors hidden sm:inline-block"
+                >
+                  Give feedback
+                </button>
+
+                <button className="relative p-2 text-neutral-500 hover:text-neutral-800 rounded-lg hover:bg-neutral-100 transition-colors">
+                  <Icons.Bell />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#ea580c] rounded-full ring-2 ring-white"></span>
+                </button>
+
+                <div className="flex items-center space-x-2 bg-white border border-neutral-200 shadow-2xs px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-700">
+                  <Icons.Calendar />
+                  <span>{dateRange}</span>
+                  <Icons.ChevronDown />
+                </div>
+
+                <button className="p-2 text-neutral-500 hover:text-neutral-800 rounded-lg hover:bg-neutral-100 transition-colors">
+                  <Icons.Shield />
+                </button>
+
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center space-x-1.5 bg-[#ea580c] hover:bg-[#c2410c] text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg shadow-sm transition-all active:scale-95"
+                >
+                  <Icons.Plus />
+                  <span>New Deal</span>
+                </button>
+              </div>
+            </header>
+
+            {/* SCROLLABLE DASHBOARD VIEW */}
+            <main className="flex-1 overflow-y-auto p-5 lg:p-7 space-y-6 custom-scrollbar">
+              {/* Green Insight Banner (Matching reference image) */}
+              {bannerVisible && (
+                <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl p-3.5 px-4.5 flex items-center justify-between shadow-2xs">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-xl bg-[#059669] flex items-center justify-center text-white shadow-xs flex-shrink-0">
+                      <Icons.Sparkles />
+                    </div>
+                    <p className="text-xs text-neutral-800">
+                      <span className="font-semibold text-emerald-950">
+                        Weekly Insight: Your sales velocity increased 16.4% compared to the previous period.
+                      </span>{" "}
+                      <span className="text-emerald-700 hidden sm:inline">
+                        Actualmente hay {activeDealsCount} tratos abiertos por €{activePipelineValue.toLocaleString()} y un Win Rate del {winRate}%.
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2 flex-shrink-0 ml-3">
+                    <button
+                      onClick={() => alert(`Resumen Operativo:\n- Revenue Won: €${totalRevenue.toLocaleString()}\n- Deals Activos: ${activeDealsCount}\n- Win Rate: ${winRate}%`)}
+                      className="flex items-center space-x-1 bg-white border border-[#86efac] hover:bg-emerald-50 text-emerald-800 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-2xs transition-colors"
+                    >
+                      <span>View Insight</span>
+                      <Icons.ArrowUpRight />
+                    </button>
+                    <button
+                      onClick={() => setBannerVisible(false)}
+                      className="p-1 text-emerald-600 hover:text-emerald-900 rounded-md"
+                    >
+                      <Icons.X />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 1. TOP KPIS SUPERIORES (Cálculo 100% dinámico) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Revenue */}
+                <div className="bg-white rounded-2xl p-5 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Total Revenue</span>
+                    <div className="w-8 h-8 rounded-xl bg-[#ea580c]/10 text-[#ea580c] flex items-center justify-center">
+                      <Icons.Dollar />
+                    </div>
+                  </div>
+                  <div className="my-3">
+                    <div className="text-2xl font-bold text-neutral-900 tracking-tight">
+                      €{totalRevenue.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
+                      Suma de deals con status = 'won'
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-1.5 pt-2 border-t border-neutral-100 text-xs">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md font-semibold text-[11px] bg-[#ecfdf5] text-[#059669]">
+                      <Icons.ArrowUpRight /> +14.8%
+                    </span>
+                    <span className="text-neutral-400 text-[11px]">vs mes anterior</span>
+                  </div>
+                </div>
+
+                {/* Active Deals */}
+                <div className="bg-white rounded-2xl p-5 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Active Deals</span>
+                    <div className="w-8 h-8 rounded-xl bg-[#6366f1]/10 text-[#6366f1] flex items-center justify-center">
+                      <Icons.Briefcase />
+                    </div>
+                  </div>
+                  <div className="my-3">
+                    <div className="text-2xl font-bold text-neutral-900 tracking-tight">
+                      {activeDealsCount} Deals
+                    </div>
+                    <p className="text-[11px] text-neutral-400 font-medium mt-0.5 truncate">
+                      €{activePipelineValue.toLocaleString()} en pipeline abierto
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-1.5 pt-2 border-t border-neutral-100 text-xs">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md font-semibold text-[11px] bg-[#ecfdf5] text-[#059669]">
+                      <Icons.ArrowUpRight /> +4 nuevos
+                    </span>
+                    <span className="text-neutral-400 text-[11px]">esta semana</span>
+                  </div>
+                </div>
+
+                {/* Win Rate */}
+                <div className="bg-white rounded-2xl p-5 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Win Rate</span>
+                    <div className="w-8 h-8 rounded-xl bg-[#10b981]/10 text-[#10b981] flex items-center justify-center">
+                      <Icons.TrendingUp />
+                    </div>
+                  </div>
+                  <div className="my-3">
+                    <div className="text-2xl font-bold text-neutral-900 tracking-tight">
+                      {winRate}%
+                    </div>
+                    <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
+                      {wonDeals.length} ganados de {closedCount} cerrados
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-1.5 pt-2 border-t border-neutral-100 text-xs">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md font-semibold text-[11px] bg-[#ecfdf5] text-[#059669]">
+                      <Icons.ArrowUpRight /> +3.5%
+                    </span>
+                    <span className="text-neutral-400 text-[11px]">vs media industria</span>
+                  </div>
+                </div>
+
+                {/* Avg Deal Size */}
+                <div className="bg-white rounded-2xl p-5 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Avg Deal Size</span>
+                    <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                      <Icons.BarChart />
+                    </div>
+                  </div>
+                  <div className="my-3">
+                    <div className="text-2xl font-bold text-neutral-900 tracking-tight">
+                      €{avgDealSize.toLocaleString()}
+                    </div>
+                    <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
+                      Ticket promedio por contrato ganado
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-1.5 pt-2 border-t border-neutral-100 text-xs">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-md font-semibold text-[11px] bg-[#ecfdf5] text-[#059669]">
+                      <Icons.ArrowUpRight /> +12.4%
+                    </span>
+                    <span className="text-neutral-400 text-[11px]">YoY expansion</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. GRÁFICOS PRINCIPALES (BARRAS Y LÍNEA) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* GRÁFICO PRINCIPAL DE BARRAS: Revenue por Etapa del Pipeline */}
+                <div className="bg-white rounded-2xl p-6 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                    <div>
+                      <h3 className="text-sm font-bold text-neutral-900 tracking-tight">
+                        Revenue by Pipeline Stage
+                      </h3>
+                      <p className="text-[11px] text-neutral-400 mt-0.5">
+                        Eje X: Etapas ordenadas · Eje Y: Suma de valor monetario (€)
+                      </p>
+                    </div>
+                    <span className="text-[11px] font-semibold text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-md">
+                      Pipeline Activo
+                    </span>
+                  </div>
+
+                  {/* Render de las barras */}
+                  <div className="pt-6 pb-2">
+                    {(() => {
+                      const sortedStages = [...stages].sort((a,b) => a.display_order - b.display_order);
+                      const stageStats = sortedStages.map(st => {
+                        const inStage = deals.filter(d => d.stage_id === st.id);
+                        const total = inStage.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+                        return { ...st, total, count: inStage.length };
+                      });
+                      const maxVal = Math.max(...stageStats.map(s => s.total), 50000);
+
+                      return (
+                        <div className="relative h-[210px] flex items-end justify-between px-3 sm:px-6">
+                          {/* Líneas guía horizontales */}
+                          <div className="absolute inset-x-0 top-0 border-b border-dashed border-neutral-100">
+                            <span className="text-[10px] text-neutral-400 absolute -top-2.5 right-0">€{Math.round(maxVal/1000)}k</span>
+                          </div>
+                          <div className="absolute inset-x-0 top-1/2 border-b border-dashed border-neutral-100">
+                            <span className="text-[10px] text-neutral-400 absolute -top-2.5 right-0">€{Math.round((maxVal/2)/1000)}k</span>
+                          </div>
+                          <div className="absolute inset-x-0 bottom-0 border-b border-neutral-200">
+                            <span className="text-[10px] text-neutral-400 absolute -bottom-4 right-0">€0</span>
+                          </div>
+
+                          {stageStats.map(s => {
+                            const pct = maxVal > 0 ? (s.total / maxVal) * 100 : 0;
+                            return (
+                              <div key={s.id} className="relative flex-1 flex flex-col items-center justify-end h-full mx-1.5 sm:mx-3 group cursor-pointer z-10">
+                                <span className="text-[10px] font-semibold text-neutral-600 mb-1 group-hover:text-neutral-900 transition-colors">
+                                  €{Math.round(s.total / 1000)}k
+                                </span>
+                                <div
+                                  className="w-full max-w-[50px] rounded-t-xl transition-all duration-300 relative overflow-hidden group-hover:brightness-110 shadow-xs"
+                                  style={{
+                                    height: `${Math.max(pct, 4)}%`,
+                                    backgroundColor: s.color || '#ea580c'
+                                  }}
+                                >
+                                  <div className="absolute inset-x-0 top-0 h-1/3 bg-white/20"></div>
+                                </div>
+                                <div className="mt-3 text-center">
+                                  <p className="text-xs font-semibold text-neutral-700">{s.name}</p>
+                                  <p className="text-[10px] text-neutral-400 font-medium">{s.count} deals</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="pt-4 mt-2 border-t border-neutral-100 flex flex-wrap items-center justify-between text-xs gap-2">
+                    <div className="flex items-center space-x-3 text-[11px] text-neutral-600 font-medium">
+                      <span className="flex items-center space-x-1">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#ea580c]"></span>
+                        <span>Negotiation (Naranja)</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
+                        <span>Closed Won (Verde)</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#f43f5e]"></span>
+                        <span>Closed Lost (Rojo)</span>
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-neutral-400 italic">Actualización reactiva</span>
+                  </div>
+                </div>
+
+                {/* GRÁFICO SECUNDARIO DE LÍNEA: Evolución de ventas en el tiempo */}
+                <div className="bg-white rounded-2xl p-6 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                    <div>
+                      <h3 className="text-sm font-bold text-neutral-900 tracking-tight">
+                        Sales Evolution Over Time
+                      </h3>
+                      <p className="text-[11px] text-neutral-400 mt-0.5">
+                        Ingresos ganados vs Cuota esperada (Enero - Junio 2024)
+                      </p>
+                    </div>
+
+                    <div className="flex items-center bg-[#f2f1ec] p-0.5 rounded-lg text-xs font-semibold text-neutral-500">
+                      <span className="px-2.5 py-1 rounded-md text-[11px] hover:text-neutral-900 cursor-pointer">D</span>
+                      <span className="px-2.5 py-1 rounded-md text-[11px] hover:text-neutral-900 cursor-pointer">W</span>
+                      <span className="px-2.5 py-1 rounded-md text-[11px] bg-white text-neutral-900 font-bold shadow-2xs">M</span>
+                    </div>
+                  </div>
+
+                  {/* SVG Line Chart */}
+                  <div className="pt-4">
+                    {(() => {
+                      const teamQuota = users.reduce((sum, u) => sum + (Number(u.quota_amount) || 0), 0);
+                      const months = [
+                        { label: "Ene", val: 85000, quota: teamQuota * 0.75 },
+                        { label: "Feb", val: 120000, quota: teamQuota * 0.8 },
+                        { label: "Mar", val: 165000, quota: teamQuota * 0.85 },
+                        { label: "Abr", val: 240000, quota: teamQuota * 0.9 },
+                        { label: "May", val: totalRevenue > 0 ? totalRevenue : 320000, quota: teamQuota },
+                        { label: "Jun (Est)", val: Math.round(totalRevenue * 1.15), quota: teamQuota * 1.05 }
+                      ];
+                      const maxL = Math.max(...months.map(m => Math.max(m.val, m.quota)), 350000);
+                      const w = 480;
+                      const h = 180;
+                      const px = 35;
+                      const py = 20;
+
+                      const getX = (i) => px + (i * (w - 2 * px)) / (months.length - 1);
+                      const getY = (v) => h - py - ((v / maxL) * (h - 2 * py));
+
+                      const wonPoints = months.map((m, i) => `${getX(i)},${getY(m.val)}`).join(' ');
+                      const quotaPoints = months.map((m, i) => `${getX(i)},${getY(m.quota)}`).join(' ');
+                      const areaWon = `M ${getX(0)},${getY(months[0].val)} ` + months.map((m, i) => `L ${getX(i)},${getY(m.val)}`).join(' ') + ` L ${getX(months.length - 1)},${h - py} L ${getX(0)},${h - py} Z`;
+
+                      return (
+                        <div className="relative">
+                          <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-44 overflow-visible">
+                            <defs>
+                              <linearGradient id="svgGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                                <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                              </linearGradient>
+                            </defs>
+
+                            <line x1={px} y1={py} x2={w-px} y2={py} stroke="#f1f0ea" strokeDasharray="3 3"/>
+                            <line x1={px} y1={h/2} x2={w-px} y2={h/2} stroke="#f1f0ea" strokeDasharray="3 3"/>
+                            <line x1={px} y1={h-py} x2={w-px} y2={h-py} stroke="#e5e4de"/>
+
+                            {/* Área verde */}
+                            <path d={areaWon} fill="url(#svgGrad)"/>
+
+                            {/* Quota dash line */}
+                            <polyline fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 4" points={quotaPoints}/>
+
+                            {/* Revenue line */}
+                            <polyline fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" points={wonPoints}/>
+
+                            {/* Dots */}
+                            {months.map((m, i) => (
+                              <circle key={i} cx={getX(i)} cy={getY(m.val)} r="4" fill="#ffffff" stroke="#10b981" strokeWidth="2.5" className="hover:scale-125 transition-transform cursor-pointer"/>
+                            ))}
+                          </svg>
+
+                          <div className="flex justify-between px-6 mt-1 text-[11px] text-neutral-400 font-medium">
+                            {months.map((m, i) => (
+                              <span key={i}>{m.label}</span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="pt-4 mt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
+                    <div className="flex items-center space-x-4 text-[11px] text-neutral-600 font-medium">
+                      <span className="flex items-center space-x-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
+                        <span>Revenue Cerrado</span>
+                      </span>
+                      <span className="flex items-center space-x-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full border border-dashed border-neutral-400 bg-neutral-100"></span>
+                        <span>Cuota Asignada</span>
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                      +18.4% Velocidad
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. LEADERBOARD DE VENDEDORES & COMPOSICIÓN POR INDUSTRIA (Estilo idéntico a referencia) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Reps Leaderboard */}
+                <div className="bg-white rounded-2xl p-6 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                    <div>
+                      <h3 className="text-sm font-bold text-neutral-900 tracking-tight">
+                        Sales Rep Performance Leaderboard
+                      </h3>
+                      <p className="text-[11px] text-neutral-400 mt-0.5">
+                        Rendimiento clasificado por ingresos y cuota individual
+                      </p>
+                    </div>
+                    <button className="flex items-center space-x-1 text-xs font-semibold text-neutral-600 hover:text-neutral-900">
+                      <span>View full team</span>
+                      <Icons.ChevronRight />
+                    </button>
+                  </div>
+
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="text-neutral-400 text-[10px] uppercase font-bold tracking-wider border-b border-neutral-100">
+                          <th className="pb-2.5 font-bold w-6">#</th>
+                          <th className="pb-2.5 font-bold">Vendedor</th>
+                          <th className="pb-2.5 font-bold text-right">Revenue Won</th>
+                          <th className="pb-2.5 font-bold text-center">Cuota %</th>
+                          <th className="pb-2.5 font-bold text-right">Win Rate</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100">
+                        {users.map((user, idx) => {
+                          const uDeals = deals.filter(d => d.owner_id === user.id);
+                          const uWon = uDeals.filter(d => d.status === 'won');
+                          const uLost = uDeals.filter(d => d.status === 'lost');
+                          const rev = uWon.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+                          const att = Math.round((rev / (user.quota_amount || 80000)) * 100);
+                          const wr = (uWon.length + uLost.length) > 0 ? Math.round((uWon.length / (uWon.length + uLost.length)) * 100) : 0;
+
+                          return { ...user, rev, att, wr };
+                        })
+                        .sort((a,b) => b.rev - a.rev)
+                        .map((rep, idx) => (
+                          <tr key={rep.id} className="hover:bg-neutral-50/70 transition-colors">
+                            <td className="py-2.5 text-neutral-400 font-bold text-xs">
+                              {idx === 0 ? (
+                                <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px]">1</span>
+                              ) : `#${idx + 1}`}
+                            </td>
+                            <td className="py-2.5">
+                              <div className="flex items-center space-x-2.5">
+                                <img src={rep.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover ring-1 ring-neutral-200" />
+                                <div>
+                                  <span className="font-semibold text-neutral-900 block">{rep.full_name}</span>
+                                  <span className="text-[10px] text-neutral-400">{rep.role === 'manager' ? 'Sales Manager' : 'Sales Rep'}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-2.5 text-right font-bold text-neutral-800">
+                              €{rep.rev.toLocaleString()}
+                            </td>
+                            <td className="py-2.5 text-center">
+                              <div className="inline-flex items-center space-x-1.5 bg-neutral-100 px-2 py-0.5 rounded-full">
+                                <span className={`w-1.5 h-1.5 rounded-full ${rep.att >= 100 ? 'bg-emerald-500' : rep.att >= 80 ? 'bg-blue-500' : 'bg-amber-500'}`}></span>
+                                <span className="text-[11px] font-semibold text-neutral-700">{rep.att}%</span>
+                              </div>
+                            </td>
+                            <td className="py-2.5 text-right font-semibold text-neutral-600">
+                              {rep.wr}%
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Industry Breakdown (Composition) */}
+                <div className="bg-white rounded-2xl p-6 border border-[#ecebe6] shadow-2xs flex flex-col justify-between">
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                    <div>
+                      <h3 className="text-sm font-bold text-neutral-900 tracking-tight">
+                        Pipeline Composition by Industry
+                      </h3>
+                      <p className="text-[11px] text-neutral-400 mt-0.5">
+                        Volumen total de ventas distribuido por sector B2B
+                      </p>
+                    </div>
+                    <button className="flex items-center space-x-1 text-xs font-semibold text-neutral-600 hover:text-neutral-900">
+                      <span>View all</span>
+                      <Icons.ChevronRight />
+                    </button>
+                  </div>
+
+                  {(() => {
+                    const indTotals = {};
+                    let grandTotal = 0;
+                    deals.forEach(d => {
+                      const c = customerMap[d.customer_id];
+                      const ind = c ? c.industry : "Otros";
+                      const amt = Number(d.amount) || 0;
+                      indTotals[ind] = (indTotals[ind] || 0) + amt;
+                      grandTotal += amt;
+                    });
+                    const colors = ["#818cf8", "#38bdf8", "#34d399", "#fbbf24", "#f472b6", "#a78bfa"];
+                    const list = Object.entries(indTotals)
+                      .map(([industry, amount], i) => ({
+                        industry,
+                        amount,
+                        pct: grandTotal > 0 ? Math.round((amount / grandTotal) * 100) : 0,
+                        color: colors[i % colors.length]
+                      }))
+                      .sort((a,b) => b.amount - a.amount);
+
+                    return (
+                      <div className="space-y-3.5 my-3">
+                        {list.slice(0, 5).map(item => (
+                          <div key={item.industry} className="flex items-center justify-between space-x-4">
+                            <div className="flex items-center space-x-2 w-40 truncate">
+                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+                              <span className="text-xs font-medium text-neutral-700 truncate">{item.industry}</span>
+                            </div>
+                            <div className="flex-1 h-2.5 bg-neutral-100 rounded-full overflow-hidden flex items-center">
+                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.max(item.pct, 4)}%`, backgroundColor: item.color }}></div>
+                            </div>
+                            <div className="w-12 text-right">
+                              <span className="text-xs font-bold text-neutral-800">{item.pct}%</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+
+                  <div className="pt-3 border-t border-neutral-100 flex items-center justify-between bg-neutral-50/80 -mx-2 px-3 py-2 rounded-xl">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">✓</div>
+                      <div className="leading-tight">
+                        <p className="text-xs font-semibold text-neutral-900">Último trato ganado</p>
+                        <p className="text-[10px] text-neutral-500">TechSolutions SL · €32.000 Closed Won</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-neutral-400 font-medium">hace 2h</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. TABLA INTERACTIVA DE TOP DEALS (Cambio de estado en vivo para recalcular KPIs) */}
+              <div className="bg-white rounded-2xl p-6 border border-[#ecebe6] shadow-2xs">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-neutral-100">
+                  <div>
+                    <h3 className="text-sm font-bold text-neutral-900 tracking-tight">
+                      Top Deals Recientes (Control Dinámico en Vivo)
+                    </h3>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">
+                      Cambia el estado de cualquier trato directamente en el menú para ver cómo todos los KPIs y gráficos se recalculan en tiempo real
+                    </p>
+                  </div>
+                  <div className="text-xs font-semibold text-neutral-500 bg-neutral-100 px-3 py-1 rounded-lg">
+                    Total: {deals.length} oportunidades registradas
+                  </div>
+                </div>
+
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="text-neutral-400 text-[10px] uppercase font-bold tracking-wider border-b border-neutral-100">
+                        <th className="pb-3 font-bold">Oportunidad</th>
+                        <th className="pb-3 font-bold">Cliente B2B</th>
+                        <th className="pb-3 font-bold">Vendedor</th>
+                        <th className="pb-3 font-bold">Etapa</th>
+                        <th className="pb-3 font-bold text-right">Monto (€)</th>
+                        <th className="pb-3 font-bold text-center">Estado (Editable en Vivo)</th>
+                        <th className="pb-3 font-bold text-right">Cierre / Previsión</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100">
+                      {deals.slice(0, 8).map(deal => {
+                        const cust = customerMap[deal.customer_id];
+                        const owner = userMap[deal.owner_id];
+                        const stage = stageMap[deal.stage_id];
+
+                        return (
+                          <tr key={deal.id} className="hover:bg-neutral-50/70 transition-colors">
+                            <td className="py-3 pr-3">
+                              <p className="font-semibold text-neutral-900">{deal.title}</p>
+                              <p className="text-[10px] text-neutral-400 font-mono">{deal.id}</p>
+                            </td>
+                            <td className="py-3 pr-3">
+                              <span className="font-medium text-neutral-800 block">{cust?.company_name}</span>
+                              <span className="text-[10px] text-neutral-400">{cust?.industry}</span>
+                            </td>
+                            <td className="py-3 pr-3">
+                              <div className="flex items-center space-x-2">
+                                <img src={owner?.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover ring-1 ring-neutral-200" />
+                                <span className="text-neutral-700 font-medium truncate max-w-[100px]">{owner?.full_name}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 pr-3">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold text-white shadow-2xs" style={{ backgroundColor: stage?.color || '#94a3b8' }}>
+                                {stage?.name}
+                              </span>
+                            </td>
+                            <td className="py-3 pr-3 text-right font-bold text-neutral-900">
+                              €{Number(deal.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-2 text-center">
+                              <select
+                                value={deal.status}
+                                onChange={(e) => handleUpdateDealStatus(deal.id, e.target.value)}
+                                className={`text-xs font-semibold rounded-lg px-2.5 py-1 border transition-all cursor-pointer shadow-2xs focus:outline-none ${
+                                  deal.status === 'won'
+                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                    : deal.status === 'lost'
+                                    ? 'bg-rose-50 text-rose-800 border-rose-300'
+                                    : 'bg-orange-50 text-orange-800 border-orange-300'
+                                }`}
+                              >
+                                <option value="won">✓ Won (Ganado)</option>
+                                <option value="open">⏳ Open (Abierto)</option>
+                                <option value="lost">✕ Lost (Perdido)</option>
+                              </select>
+                            </td>
+                            <td className="py-3 text-right text-[11px] text-neutral-500 font-medium">
+                              {deal.closed_at ? new Date(deal.closed_at).toLocaleDateString() : deal.expected_close_date || 'En curso'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </main>
+          </div>
+
+          {/* MODAL NUEVA OPORTUNIDAD */}
+          {isModalOpen && (
+            <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-neutral-200">
+                <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+                  <h3 className="text-sm font-bold text-neutral-900">Crear Nueva Oportunidad</h3>
+                  <button onClick={() => setIsModalOpen(false)} className="text-neutral-400 hover:text-neutral-700">
+                    <Icons.X />
+                  </button>
+                </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const titleVal = form.title.value;
+                    const amtVal = parseFloat(form.amount.value) || 20000;
+                    const stVal = form.status.value;
+                    const custVal = form.customer.value;
+                    const ownerVal = form.owner.value;
+
+                    handleAddDeal({
+                      id: `d${Date.now()}`,
+                      title: titleVal,
+                      customer_id: custVal,
+                      owner_id: ownerVal,
+                      stage_id: stVal === 'won' ? 's4' : stVal === 'lost' ? 's5' : 's3',
+                      amount: amtVal,
+                      currency: 'EUR',
+                      status: stVal,
+                      created_at: new Date().toISOString(),
+                      closed_at: stVal === 'won' ? new Date().toISOString() : undefined,
+                      expected_close_date: '2024-06-30'
+                    });
+                    setIsModalOpen(false);
+                  }}
+                  className="mt-4 space-y-3.5 text-xs"
+                >
+                  <div>
+                    <label className="block font-semibold text-neutral-700 mb-1">Título del Trato</label>
+                    <input name="title" required placeholder="ej: Licencia Global Cloud" className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-neutral-700 mb-1">Cliente</label>
+                      <select name="customer" className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg">
+                        {customers.map(c => <option key={c.id} value={c.id}>{c.company_name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-neutral-700 mb-1">Vendedor</label>
+                      <select name="owner" className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg">
+                        {users.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-semibold text-neutral-700 mb-1">Monto (€)</label>
+                      <input name="amount" type="number" required defaultValue="35000" step="1000" className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg" />
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-neutral-700 mb-1">Estado</label>
+                      <select name="status" className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg">
+                        <option value="won">Ganado (Won)</option>
+                        <option value="open">Abierto (Open)</option>
+                        <option value="lost">Perdido (Lost)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-neutral-100 flex justify-end space-x-2">
+                    <button type="button" onClick={() => setIsModalOpen(false)} className="px-3.5 py-1.5 text-neutral-600">Cancelar</button>
+                    <button type="submit" className="px-4 py-1.5 bg-[#ea580c] text-white rounded-lg font-semibold">Guardar y Calcular</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
