@@ -1,25 +1,16 @@
-# 📊 CRM Sales Intelligence Dashboard (B2B SaaS MVP)
+# ✈️ Dashboard de Reserva, Conversión & Check-in (Airline Operations SaaS)
 
-MVP de **Dashboard de CRM enfocado en la toma de decisiones rápidas** para un Responsable de Ventas (VP / Head of Sales). Permite monitorear en tiempo real el rendimiento del equipo, la velocidad del pipeline y el estado de los ingresos.
+Dashboard empresarial para la **toma de decisiones operativas y de ingresos en tiempo real** en una aerolínea comercial, diseñado con base en los diagramas de procesos BPMN:
+* **Proceso 2: Reserva y Emisión de Tiquetes (Embudo de Ventas y Pasarela de Pagos)**
+* **Proceso 3: Check-in, Asignación de Asientos y Servicios Adicionales (Ancillaries)**
+* **Métricas Transversales: Latencia de Endpoints Asíncronos y Notificaciones**
 
-Diseñado siguiendo estrictamente la **referencia visual provista**: estilo minimalista, bordes amplios (`rounded-3xl` / `rounded-2xl`), sombras suaves difusas, fondo crema/hueso (`#fbfbfa`), tarjetas blancas y acentos en **naranja/coral** para ingresos y llamados a la acción, **verde esmeralda** para tratos ganados e insights positivos, y **azul/índigo** para métricas operativas.
+Diseñado con el **estilo visual de referencia**: diseño minimalista y limpio, esquinas redondeadas (`rounded-[28px]` y `rounded-2xl`), sombras difusas suaves, fondo crema/hueso (`#fbfbfa`), tarjetas blancas y acentos en **naranja/coral** (`#ea580c`), **verde esmeralda** (`#10b981`), **índigo** (`#6366f1`) y **azul cielo** (`#0284c7`).
 
 ---
 
 ## 🚀 Cómo Ejecutar el Proyecto
 
-Tienes **dos opciones** listas para usar:
-
-### Opción 1: Ejecución Inmediata sin Instalación (Recomendado)
-Simplemente haz **doble clic** en el archivo:
-```text
-index.html
-```
-o ábrelo con cualquier navegador web (Chrome, Edge, Firefox, Safari).  
-*No requiere `node`, ni `npm`, ni compilación previa. Se ejecuta al 100% en el navegador con React 18, Tailwind CSS y Babel.*
-
-### Opción 2: Proyecto Modular React + Vite
-Si deseas ejecutarlo dentro de un entorno de desarrollo Node.js estándar:
 ```bash
 # 1. Instalar dependencias
 npm install
@@ -30,6 +21,7 @@ npm run dev
 # 3. Compilar para producción
 npm run build
 ```
+Abre en tu navegador la URL: `http://localhost:3000`.
 
 ---
 
@@ -37,102 +29,92 @@ npm run build
 
 ```text
 lab3Fsi/
-├── mockData.js                  # 📦 Archivo central de Datos Simulados (ESM)
-├── index.html                   # 🌐 Aplicación SPA autocontenida lista para abrir en navegador
-├── README.md                    # 📖 Documentación técnica y fórmulas
-├── estructura de datos.md       # 📋 Especificación original de entidades
-├── package.json                 # ⚙️ Configuración NPM (React 18, Lucide, Tailwind)
-├── vite.config.js               # ⚡ Configuración Vite
-├── tailwind.config.js           # 🎨 Configuración de paleta de colores y tokens de diseño
+├── estructura de datos.md              # 📋 Esquema de datos normalizado (Vuelos, Reservas, Pagos, Check-in)
+├── mockData.js                         # 📦 Store central de datos simulados (ESM)
+├── index.html                          # 🌐 Entrada principal Vite
+├── package.json                        # ⚙️ Dependencias (React 18, Tailwind, Lucide)
+├── postcss.config.js                   # 🎨 Configuración PostCSS / Tailwind
+├── vite.config.js                      # ⚡ Configuración de bundling Vite
+├── tailwind.config.js                  # 🎨 Tokens de diseño y colores
 └── src/
-    ├── main.jsx                 # Punto de entrada React
-    ├── App.jsx                  # Orquestador principal, estado dinámico y lógica reactiva
-    ├── index.css                # Directivas Tailwind y estilos de scrollbar
-    ├── mockData.js              # Datos simulados para consumo modular
+    ├── main.jsx                        # Punto de entrada React
+    ├── App.jsx                         # Orquestador principal y lógica reactiva
+    ├── index.css                       # Estilos base y scrollbar suave
+    ├── mockData.js                     # Espejo de datos para imports en src
     └── components/
-        ├── Sidebar.jsx          # Barra lateral de navegación con estilo fiel a la referencia
-        ├── Header.jsx           # Título, selector de fechas ("1 Jun - 30 Jun 2026") y botón "+ New Deal"
-        ├── InsightBanner.jsx    # Banner superior verde de insights automáticos
-        ├── KPICards.jsx         # 4 KPIs calculados dinámicamente sobre el array de deals
-        ├── PipelineStageChart.jsx # Gráfico principal de barras (Ingresos por etapa)
-        ├── RevenueOverTimeChart.jsx # Gráfico secundario de líneas (Evolución de ventas vs cuota)
-        ├── RepsLeaderboard.jsx  # Leaderboard de rendimiento de vendedores (Attainment & Win Rate)
-        ├── IndustryBreakdown.jsx # Desglose de composición del pipeline por industria
-        ├── DealsTable.jsx       # Tabla de oportunidades con dropdown para cambiar estado en vivo
-        └── NewDealModal.jsx     # Modal interactivo para registrar nuevas oportunidades
+        ├── Sidebar.jsx                 # Barra de navegación lateral de AeroOps
+        ├── Header.jsx                  # Encabezado con selector de fechas y botón AI Copilot
+        ├── InsightBanner.jsx           # Banner verde con insights automáticos de operaciones
+        ├── KPIScorecards.jsx           # 6 Tarjetas KPI (Ingresos Netos, Conversión, Reintentos, etc.)
+        ├── ConversionFunnelChart.jsx   # Embudo de Conversión (Búsquedas ➔ Disponibilidad ➔ Pago ➔ Confirmación)
+        ├── PaymentsStackedBarChart.jsx # Barras Apiladas: Pagos Aprobados (1er intento vs Reintento) vs Rechazos
+        ├── CheckInTrendLineChart.jsx   # Gráfico de Líneas: Pases de abordar emitidos vs Errores PNR en el tiempo
+        ├── AncillaryCheckInCards.jsx   # Métricas de Check-in y Servicios Adicionales (Equipaje Adicional)
+        ├── SystemPerformanceWidget.jsx # Latencias de Endpoints Críticos (ms) y Alertas emitidas
+        ├── BookingsTable.jsx           # Tabla interactiva con selector de estado y recálculo de devoluciones
+        └── AIChatWidget.jsx            # 🤖 Copiloto de IA conectado a Webhook N8N (POST)
 ```
 
 ---
 
-## 🧮 Lógica de Negocio y Fórmulas de KPIs (100% Dinámicos)
+## 🧮 Métricas Implementadas y Fórmulas de Negocio (100% Dinámicas)
 
-**Ningún KPI ni gráfico contiene texto o métricas estáticas.** Todos se calculan en tiempo de ejecución a partir del array reactivo de `deals`:
+### 1. Métricas de Reserva y Conversión (Proceso 2)
+* **Ingresos Netos por Ventas ($):**  
+  `∑ Pagos Tiquetes Aprobados - ∑ Reembolsos por Cancelación`
+* **Monto en Devoluciones ($):** Total reembolsado al ejecutar la compuerta *"¿Cancela la reserva? -> Sí"*.
+* **Tasa de Disponibilidad de Vuelos (%):**  
+  `(Búsquedas con opciones disponibles / Total de búsquedas) * 100` (87.0%).
+* **Tasa de Conversión Búsqueda a Reserva (%):**  
+  `(Clientes con tiquete emitido / Total de búsquedas) * 100` (52.4%).
+* **Tasa de Rechazo de Pagos (%):**  
+  `(Transacciones rechazadas / Total transacciones de pago) * 100` (10.2%).
+* **Tasa de Recuperación por Reintento (%):**  
+  `(Pagos aprobados en intento ≥ 2 / Pagos inicialmente rechazados) * 100` (85.7% recuperados con éxito).
+* **Tasa de Cancelación Post-Emisión (%):**  
+  `(Reservas canceladas / Total reservas emitidas) * 100`.
 
-| KPI | Fórmula / Lógica | Descripción |
-| :--- | :--- | :--- |
-| **Total Revenue** | `∑ deal.amount WHERE deal.status === 'won'` | Suma total del valor monetario de todos los tratos cerrados ganados. |
-| **Active Deals** | `COUNT(deal) WHERE deal.status === 'open'` | Cantidad de oportunidades comerciales actualmente en negociación activa. |
-| **Active Pipeline Value** | `∑ deal.amount WHERE deal.status === 'open'` | Valor total en riesgo / negociación en el pipeline abierto. |
-| **Win Rate** | `(won_count / (won_count + lost_count)) * 100` | Porcentaje de tratos ganados sobre el total de tratos cerrados con resolución. |
-| **Avg Deal Size** | `Total Revenue / won_count` | Ticket promedio de venta en tratos ganados. |
-| **Revenue Growth** | `((may_rev - apr_rev) / apr_rev) * 100` | Comparativa porcentual real de ingresos cerrados respecto al mes anterior. |
+### 2. Métricas de Check-in y Servicios Adicionales (Proceso 3)
+* **Tasa de Error en Validación de Reserva (%):**  
+  Porcentaje de intentos en check-in que fallan en *"¿Reserva válida? -> NO"* (4.2%).
+* **Tasa de Adopción de Equipaje Adicional (%):**  
+  Porcentaje de pasajeros que seleccionan *"¿Equipaje adicional? -> Sí"* y completan el pago (66.7%).
+* **Ingresos por Equipaje Adicional (Ancillary Revenue $):**  
+  Total recaudado exclusivamente en la actividad *"Pagar equipaje"*.
+* **Tasa de Finalización de Check-in (%):**  
+  Porcentaje de pasajeros que inician con su PNR y logran generar su pase de abordar (92.9%).
+* **Tiempo Promedio de Check-in:**  
+  Promedio transcurrido desde *"Ingresar código de reserva"* hasta *"Generar pase de abordar"* (1m 38s).
 
-> 💡 **Prueba de Reactividad:** En la tabla inferior de **Top Deals**, cambia el selector de estado de cualquier trato (por ejemplo, de `Open` a `Won` o a `Lost`). Observarás cómo:
-> 1. El **Total Revenue** aumenta o disminuye instantáneamente.
-> 2. El **Win Rate** se recalcula automáticamente.
-> 3. Las barras del **Pipeline Stage** se redimensionan en tiempo real.
-> 4. La curva del gráfico de **Sales Evolution** ajusta sus puntos.
-> 5. El ranking de vendedores (**Leaderboard**) actualiza la posición del comercial.
-
----
-
-## 📊 Gráficos Implementados
-
-### 1. Gráfico Principal (Barras): Revenue by Pipeline Stage
-* **Eje X:** Etapas ordenadas según `display_order` (`Prospect`, `Lead`, `Negotiation`, `Closed Won`, `Closed Lost`).
-* **Eje Y:** Suma acumulada de `amount` en miles de euros (€k).
-* **Colores de Etapa:**
-  * `Prospect`: Slate suave (`#94a3b8`)
-  * `Lead`: Índigo / Azul (`#6366f1`)
-  * `Negotiation`: **Naranja Coral vibrante** (`#ea580c`), fiel al diseño de referencia.
-  * `Closed Won`: **Verde Esmeralda** (`#10b981`).
-  * `Closed Lost`: **Rojo Suave** (`#f43f5e`).
-
-### 2. Gráfico Secundario (Línea): Sales Evolution Over Time
-* Muestra la evolución temporal de ventas ganadas vs la cuota mensual del equipo.
-* Incluye selector de granularidad: `D` (Día), `W` (Semana), `M` (Mes) como en la interfaz de referencia.
-* Curva con degradado suave en verde esmeralda y línea punteada para el target de cuota.
-
-### 3. Leaderboard de Rendimiento de Vendedores
-* Inspirado en la tarjeta *"Brand Performance Leaderboard"* de la referencia visual.
-* Clasifica a los comerciales por volumen de ventas ganadas, porcentaje de cumplimiento de cuota (`attainment %`) y tasa de cierre individual.
-
-### 4. Pipeline Composition by Industry
-* Inspirado en *"Reference Sources Composition"*.
-* Barras horizontales redondeadas que muestran la distribución de ingresos por sector del cliente (SaaS, FinTech, Healthcare, Logistics, etc.).
+### 3. Métricas Transversales de Sistema y Operación
+* **Latencia de Respuesta del Sistema (ms):** Tiempo promedio en solicitudes críticas:
+  * Consultar disponibilidad: 185 ms (SLA <250 ms)
+  * Procesar el pago: 420 ms (SLA <600 ms)
+  * Validar reserva (PNR): 95 ms (SLA <150 ms)
+  * Generar pase de abordar: 240 ms (SLA <300 ms)
+* **Volumen de Notificaciones Emitidas:** Conteo desglosado por tipo (Confirmación de reserva: 712, Sin disponibilidad: 142, Rechazo de pago: 68, Cancelación: 34, Error PNR: 28).
 
 ---
 
-## 🧱 Estructura de Datos (Mock Data)
+## 📊 Visualizaciones del Dashboard
 
-El archivo `mockData.js` exporta 4 entidades estrictamente normalizadas según `estructura de datos.md`:
-
-1. **`users` (5 vendedores):**
-   * Identificador único (`u1`, `u2`, ...), nombre completo, email corporativo, rol (`sales_rep` / `manager`), avatar realista de alta resolución, cuota mensual asignada (`quota_amount`) y estado.
-2. **`stages` (5 etapas del pipeline):**
-   * `id`, nombre visible, `display_order` secuencial, `win_probability` (%) y color temático.
-3. **`customers` (10 empresas B2B):**
-   * `id`, nombre corporativo, industria/sector, contacto principal, email y teléfono.
-4. **`deals` (28 oportunidades realistas):**
-   * `id`, título del contrato, claves foráneas (`customer_id`, `owner_id`, `stage_id`), importe (`amount`), divisa (`EUR`), estado final (`won`, `open`, `lost`), fechas ISO (`created_at`, `closed_at`, `expected_close_date`) y motivo de pérdida (`loss_reason`).
+1. **Embudo de Conversión (Funnel):**  
+   Búsquedas (100%) ➔ Con Disponibilidad (87%) ➔ Pago Aprobado (55%) ➔ Reserva Confirmada (52%). Permite detectar caídas en vuelos agotados o abandonos en pasarela.
+2. **Gráfico de Barras Apiladas:**  
+   Pagos Aprobados al 1er intento (Verde) vs Aprobados en Reintento (Índigo) vs Rechazados (Rojo) por día de la semana.
+3. **Gráfico de Líneas (Tendencia Temporal):**  
+   Pases de abordar generados vs Errores de validación PNR por franja horaria.
+4. **Tarjetas de Check-in & Ancillaries:**  
+   Monetización de maletas adicionales, tiempo promedio de check-in y tasa de finalización.
+5. **Widget de Sistema & Notificaciones:**  
+   Semáforo de latencias SLA y barras de distribución de alertas.
+6. **Tabla Interactiva de Reservas:**  
+   Permite cambiar el estado de cualquier PNR a *"Cancelada"* para ver en vivo cómo se aplica la devolución y se recalculan los Ingresos Netos.
 
 ---
 
-## 🎨 Paleta de Colores y Tokens UI
+## 🤖 Integración con Agente de IA en N8N
 
-* **Fondo exterior:** `#e7e5dc` / `#f4f3ef` (tono marfil/hueso suave).
-* **Superficie de Tarjetas:** `#ffffff` puro con bordes `#ecebe6`.
-* **Sidebar:** `#fbfbfa` con elementos activos en peach `#ffedd5` y texto coral `#c2410c`.
-* **Bordes redondeados:** `rounded-[28px]` exterior y `rounded-2xl` (16px) en tarjetas interiores.
-* **Sombras:** `0 4px 20px -2px rgba(0, 0, 0, 0.04)`.
-* **Tipografía:** Inter / Sans-serif moderna de alta legibilidad.
+* **Método:** `POST`
+* **URL:** `https://lab3fsicrm.app.n8n.cloud/webhook/6a9c61c2-7a26-4751-bded-a18c08486ab6`
+* **Payload Enriquecido:** Viaja con el mensaje del usuario y el estado operativo en tiempo real (Ingresos Netos, Tasa de Conversión, Reservas activas y muestras de PNRs).

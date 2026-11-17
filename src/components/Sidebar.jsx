@@ -1,61 +1,45 @@
 import React from 'react';
 import {
+  Plane,
   LayoutDashboard,
-  FileText,
-  GitFork,
-  BarChart3,
-  TrendingUp,
-  Target,
-  PieChart,
-  Award,
-  Zap,
-  CheckCircle2,
-  Building2,
+  Filter,
+  CreditCard,
+  Luggage,
+  QrCode,
   Activity,
-  FileSpreadsheet,
-  Files,
+  Bell,
   HelpCircle,
   Settings,
   ChevronDown,
   Search,
   SlidersHorizontal,
-  Flame
+  RefreshCw,
+  Ban
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const navSections = [
     {
-      group: "OVERVIEW",
+      group: "PROCESO 2: RESERVA & VENTA",
       items: [
-        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { id: "executive_summary", label: "Executive Summary", icon: FileText },
-        { id: "pipeline_stages", label: "Pipeline Stages", icon: GitFork },
-        { id: "performance", label: "Performance Overview", icon: BarChart3 },
+        { id: "dashboard", label: "Dashboard Ejecutivo", icon: LayoutDashboard },
+        { id: "funnel", label: "Embudo de Conversión", icon: Filter },
+        { id: "payments", label: "Pasarela & Reintentos", icon: CreditCard },
+        { id: "cancellations", label: "Cancelaciones & Reembolsos", icon: Ban },
       ]
     },
     {
-      group: "ANALYTICS",
+      group: "PROCESO 3: CHECK-IN & ANCILLARY",
       items: [
-        { id: "revenue_forecast", label: "Revenue Forecast", icon: TrendingUp },
-        { id: "deal_velocity", label: "Deal Velocity", icon: Zap },
-        { id: "win_loss", label: "Win / Loss Analysis", icon: PieChart },
-        { id: "rep_rankings", label: "Rep Rankings", icon: Award },
-        { id: "pipeline_health", label: "Pipeline Health", icon: Activity },
+        { id: "checkin", label: "Check-in & Pases", icon: QrCode },
+        { id: "ancillaries", label: "Equipaje Adicional", icon: Luggage },
       ]
     },
     {
-      group: "ACTION",
+      group: "SISTEMA & OPERACIÓN",
       items: [
-        { id: "quota_tracker", label: "Quota Tracker", icon: Target },
-        { id: "target_accounts", label: "Target Accounts", icon: Building2 },
-        { id: "deal_insights", label: "Deal Impact Quality", icon: Flame },
-      ]
-    },
-    {
-      group: "REPORTING",
-      items: [
-        { id: "scheduled_exports", label: "Scheduled Exports", icon: FileSpreadsheet },
-        { id: "reports", label: "Reports Archive", icon: Files },
+        { id: "latencies", label: "Latencia de Endpoints", icon: Activity },
+        { id: "notifications", label: "Registro Alertas", icon: Bell },
       ]
     }
   ];
@@ -68,14 +52,14 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         <div className="flex items-center justify-between p-2 rounded-xl hover:bg-neutral-200/50 cursor-pointer transition-colors group">
           <div className="flex items-center space-x-2.5">
             <div className="w-7 h-7 rounded-lg bg-neutral-900 flex items-center justify-center text-white shadow-sm font-black text-sm">
-              ▲
+              <Plane className="w-4 h-4 text-[#ea580c]" />
             </div>
             <div>
               <div className="flex items-center space-x-1">
-                <span className="font-semibold text-xs text-neutral-900 tracking-tight">AI CRM Intelligence</span>
+                <span className="font-semibold text-xs text-neutral-900 tracking-tight">AeroOps Intelligence</span>
                 <ChevronDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-700 transition-colors" />
               </div>
-              <p className="text-[10px] text-neutral-400 font-medium">B2B Sales Velocity</p>
+              <p className="text-[10px] text-neutral-400 font-medium">Flight Booking & Check-in</p>
             </div>
           </div>
         </div>
@@ -85,7 +69,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
           <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Buscar vuelo, PNR..."
             readOnly
             className="w-full pl-8 pr-7 py-1.5 text-xs bg-[#f2f1ec] text-neutral-700 placeholder-neutral-400 rounded-lg border-0 focus:outline-none cursor-default"
           />
@@ -126,7 +110,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         </nav>
       </div>
 
-      {/* Bottom Profile / Agency Pill */}
+      {/* Bottom Profile / Airline Station */}
       <div className="p-3 border-t border-[#ecebe6] space-y-2 bg-[#f8f7f3]">
         <div className="flex items-center justify-between px-2 py-1 text-neutral-400">
           <HelpCircle className="w-4 h-4 hover:text-neutral-700 cursor-pointer transition-colors" />
@@ -135,12 +119,12 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
         <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-neutral-200/80 shadow-2xs cursor-pointer hover:border-neutral-300 transition-colors">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-md bg-[#059669] flex items-center justify-center text-white text-[10px] font-bold">
-              CA
+            <div className="w-6 h-6 rounded-md bg-[#0284c7] flex items-center justify-center text-white text-[10px] font-bold">
+              AO
             </div>
             <div className="leading-tight">
-              <p className="text-xs font-semibold text-neutral-800">Cansaas Agency</p>
-              <p className="text-[10px] text-neutral-400">cansaas.io@sales.com</p>
+              <p className="text-xs font-semibold text-neutral-800">AeroOps Hub</p>
+              <p className="text-[10px] text-neutral-400">ops@airline-cloud.io</p>
             </div>
           </div>
           <SlidersHorizontal className="w-3.5 h-3.5 text-neutral-400" />

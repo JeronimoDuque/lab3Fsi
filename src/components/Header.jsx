@@ -1,24 +1,31 @@
 import React from 'react';
-import { Calendar, ChevronDown, Bell, Shield, Plus, MessageSquare } from 'lucide-react';
+import { Calendar, ChevronDown, Bell, Shield, Sparkles, Plane } from 'lucide-react';
 
-export default function Header({ dateRange, setDateRange, onOpenNewDeal }) {
+export default function Header({ dateRange, setDateRange, onOpenAIChat }) {
   return (
     <header className="px-8 pt-6 pb-4 bg-white/70 backdrop-blur-md border-b border-[#ecebe6] flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       {/* Title & Subtitle */}
       <div>
-        <h1 className="text-xl font-bold text-neutral-900 tracking-tight">Dashboard</h1>
+        <div className="flex items-center space-x-2">
+          <h1 className="text-xl font-bold text-neutral-900 tracking-tight">
+            Dashboard de Reserva & Check-in
+          </h1>
+          <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            En Vivo
+          </span>
+        </div>
         <p className="text-xs text-neutral-500 mt-0.5">
-          Track and improve your pipeline performance, team revenue, and deal conversions.
+          Métricas de conversión de vuelos (Proceso 2), check-in y servicios adicionales (Proceso 3)
         </p>
       </div>
 
       {/* Right Action Tools */}
       <div className="flex items-center space-x-2.5">
         <button
-          onClick={() => alert("Feedback modal: ¿Tienes sugerencias para este CRM MVP? Todo el cálculo es 100% dinámico.")}
+          onClick={() => alert("Métricas operativas sincronizadas con los diagramas BPMN de Reserva y Check-in.")}
           className="text-xs font-medium text-neutral-600 hover:text-neutral-900 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors hidden sm:inline-block"
         >
-          Give feedback
+          Ver Procesos BPMN
         </button>
 
         {/* Notification Bell */}
@@ -34,18 +41,14 @@ export default function Header({ dateRange, setDateRange, onOpenNewDeal }) {
           <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
         </div>
 
-        {/* Shield / Security icon */}
-        <button className="p-2 text-neutral-500 hover:text-neutral-800 rounded-lg hover:bg-neutral-100 transition-colors">
-          <Shield className="w-4 h-4" />
-        </button>
-
-        {/* Action: Add New Deal */}
+        {/* AI Copilot Trigger Button (N8N) */}
         <button
-          onClick={onOpenNewDeal}
-          className="flex items-center space-x-1.5 bg-[#ea580c] hover:bg-[#c2410c] text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg shadow-sm transition-all duration-150 active:scale-95"
+          onClick={onOpenAIChat}
+          className="flex items-center space-x-1.5 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-all duration-150 active:scale-95 cursor-pointer"
+          title="Abrir Copiloto de IA conectado a N8N"
         >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>New Deal</span>
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>AI Copilot</span>
         </button>
       </div>
     </header>
