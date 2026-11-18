@@ -1,0 +1,278 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6a9c61c2-7a26-4751-bded-a18c08486ab6",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "419739bb-6960-46d8-81ea-b8a9bb903c68",
+      "name": "Webhook",
+      "webhookId": "6a9c61c2-7a26-4751-bded-a18c08486ab6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "Eres un agente de IA de soporte para un responsable de ventas para una aerolínea. Le ayudas con la información de  leads potenciales, etc.  métricas del negocio en general "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "aff93a2d-a588-4aa3-ad8f-4469c095e3a5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        208
+      ],
+      "id": "50b2eb26-67e2-40fa-b027-f42bc047a48e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.webhookUrl }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        224
+      ],
+      "id": "08e38ac9-a756-4fc1-b8c2-2c185916cbfe",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"response\": {{JSON.stringify($json.output)}}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        528,
+        0
+      ],
+      "id": "3a36a3c6-ce23-44d2-9418-cb0475165409",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "lab3fsicrm.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 OPR/139.0.0.0",
+            "content-length": "1181",
+            "accept": "application/json, text/plain",
+            "accept-encoding": "gzip, br",
+            "accept-language": "es-419,es;q=0.9,en;q=0.8",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "190.249.149.68",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "CO",
+            "cf-ray": "a5b94dd24dee9471-MIA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "http://localhost:3000",
+            "priority": "u=1, i",
+            "referer": "http://localhost:3000/",
+            "sec-ch-ua": "\"Opera GX\";v=\"139\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "190.249.149.68, 104.23.248.105",
+            "x-forwarded-host": "lab3fsicrm.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-swc-45-56f66fbf65-zjgdz",
+            "x-is-trusted": "yes",
+            "x-real-ip": "190.249.149.68"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "message": "hola",
+            "chatInput": "hola",
+            "timestamp": "2026-11-16T20:39:14.708Z",
+            "context": {
+              "totalRevenue": 482500,
+              "winRate": "75.0%",
+              "activeDealsCount": 12,
+              "currency": "EUR",
+              "sampleDeals": [
+                {
+                  "id": "d1",
+                  "title": "Licencia Enterprise Anual 2024",
+                  "amount": 32000,
+                  "status": "won",
+                  "stage_id": "s4"
+                },
+                {
+                  "id": "d2",
+                  "title": "Renovación Anual Suite Omnicanal",
+                  "amount": 18500,
+                  "status": "open",
+                  "stage_id": "s3"
+                },
+                {
+                  "id": "d3",
+                  "title": "Plataforma Core Banking API",
+                  "amount": 48000,
+                  "status": "won",
+                  "stage_id": "s4"
+                },
+                {
+                  "id": "d4",
+                  "title": "Integración HIS Hospitalario",
+                  "amount": 27500,
+                  "status": "open",
+                  "stage_id": "s3"
+                },
+                {
+                  "id": "d5",
+                  "title": "Migración Multi-Cloud DevSecOps",
+                  "amount": 22000,
+                  "status": "lost",
+                  "stage_id": "s5"
+                },
+                {
+                  "id": "d6",
+                  "title": "Optimización Rutas TMS Flota",
+                  "amount": 39000,
+                  "status": "won",
+                  "stage_id": "s4"
+                },
+                {
+                  "id": "d7",
+                  "title": "Data Lakehouse & Pipeline ETL",
+                  "amount": 54000,
+                  "status": "won",
+                  "stage_id": "s4"
+                },
+                {
+                  "id": "d8",
+                  "title": "Sensores IoT y Telemetría Agrícola",
+                  "amount": 16000,
+                  "status": "open",
+                  "stage_id": "s2"
+                },
+                {
+                  "id": "d9",
+                  "title": "Campus Virtual LMS 5.000 usuarios",
+                  "amount": 29500,
+                  "status": "won",
+                  "stage_id": "s4"
+                },
+                {
+                  "id": "d10",
+                  "title": "SOC Gestionado 24/7 y EDR",
+                  "amount": 62000,
+                  "status": "won",
+                  "stage_id": "s4"
+                }
+              ]
+            }
+          },
+          "webhookUrl": "https://lab3fsicrm.app.n8n.cloud/webhook/6a9c61c2-7a26-4751-bded-a18c08486ab6",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "19bfba1c-0821-4dfd-a13a-934c3e8bccdd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "afdbe3bcb4672dc34e2888ab578a036639141ddc44b72af5883f175639ebc057"
+  },
+  "nodeGroups": [],
+  "id": "JeBtl7LM2ulzAgyO",
+  "tags": []
+}
