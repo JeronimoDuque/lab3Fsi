@@ -21,9 +21,9 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.body.message }}",
+        "text": "=={{ $json.body.message }}\n\nContexto actual del dashboard de la aerolínea:\n{{ JSON.stringify($json.body.context) }}",
         "options": {
-          "systemMessage": "Eres un agente de IA de soporte para un responsable de ventas para una aerolínea. Le ayudas con la información de  leads potenciales, etc.  métricas del negocio en general "
+          "systemMessage": "Eres un agente de IA de soporte para un responsable de ventas para una aerolínea. Le ayudas con la información de  leads potenciales, etc.  métricas del negocio en general . evita los símbolos que no se puedan ver bien en texto plano , como * "
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -86,136 +86,7 @@
       "name": "Respond to Webhook"
     }
   ],
-  "pinData": {
-    "Webhook": [
-      {
-        "json": {
-          "headers": {
-            "host": "lab3fsicrm.app.n8n.cloud",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36 OPR/139.0.0.0",
-            "content-length": "1181",
-            "accept": "application/json, text/plain",
-            "accept-encoding": "gzip, br",
-            "accept-language": "es-419,es;q=0.9,en;q=0.8",
-            "cdn-loop": "cloudflare; loops=1; subreqs=1",
-            "cf-connecting-ip": "190.249.149.68",
-            "cf-ew-via": "15",
-            "cf-ipcountry": "CO",
-            "cf-ray": "a5b94dd24dee9471-MIA",
-            "cf-visitor": "{\"scheme\":\"https\"}",
-            "cf-worker": "n8n.cloud",
-            "content-type": "application/json",
-            "origin": "http://localhost:3000",
-            "priority": "u=1, i",
-            "referer": "http://localhost:3000/",
-            "sec-ch-ua": "\"Opera GX\";v=\"139\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": "\"Windows\"",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "cross-site",
-            "x-forwarded-for": "190.249.149.68, 104.23.248.105",
-            "x-forwarded-host": "lab3fsicrm.app.n8n.cloud",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https",
-            "x-forwarded-server": "traefik-prod-users-swc-45-56f66fbf65-zjgdz",
-            "x-is-trusted": "yes",
-            "x-real-ip": "190.249.149.68"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "message": "hola",
-            "chatInput": "hola",
-            "timestamp": "2026-11-16T20:39:14.708Z",
-            "context": {
-              "totalRevenue": 482500,
-              "winRate": "75.0%",
-              "activeDealsCount": 12,
-              "currency": "EUR",
-              "sampleDeals": [
-                {
-                  "id": "d1",
-                  "title": "Licencia Enterprise Anual 2024",
-                  "amount": 32000,
-                  "status": "won",
-                  "stage_id": "s4"
-                },
-                {
-                  "id": "d2",
-                  "title": "Renovación Anual Suite Omnicanal",
-                  "amount": 18500,
-                  "status": "open",
-                  "stage_id": "s3"
-                },
-                {
-                  "id": "d3",
-                  "title": "Plataforma Core Banking API",
-                  "amount": 48000,
-                  "status": "won",
-                  "stage_id": "s4"
-                },
-                {
-                  "id": "d4",
-                  "title": "Integración HIS Hospitalario",
-                  "amount": 27500,
-                  "status": "open",
-                  "stage_id": "s3"
-                },
-                {
-                  "id": "d5",
-                  "title": "Migración Multi-Cloud DevSecOps",
-                  "amount": 22000,
-                  "status": "lost",
-                  "stage_id": "s5"
-                },
-                {
-                  "id": "d6",
-                  "title": "Optimización Rutas TMS Flota",
-                  "amount": 39000,
-                  "status": "won",
-                  "stage_id": "s4"
-                },
-                {
-                  "id": "d7",
-                  "title": "Data Lakehouse & Pipeline ETL",
-                  "amount": 54000,
-                  "status": "won",
-                  "stage_id": "s4"
-                },
-                {
-                  "id": "d8",
-                  "title": "Sensores IoT y Telemetría Agrícola",
-                  "amount": 16000,
-                  "status": "open",
-                  "stage_id": "s2"
-                },
-                {
-                  "id": "d9",
-                  "title": "Campus Virtual LMS 5.000 usuarios",
-                  "amount": 29500,
-                  "status": "won",
-                  "stage_id": "s4"
-                },
-                {
-                  "id": "d10",
-                  "title": "SOC Gestionado 24/7 y EDR",
-                  "amount": 62000,
-                  "status": "won",
-                  "stage_id": "s4"
-                }
-              ]
-            }
-          },
-          "webhookUrl": "https://lab3fsicrm.app.n8n.cloud/webhook/6a9c61c2-7a26-4751-bded-a18c08486ab6",
-          "executionMode": "production"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
     "Webhook": {
       "main": [
@@ -267,7 +138,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "19bfba1c-0821-4dfd-a13a-934c3e8bccdd",
+  "versionId": "f5c6663b-a7aa-4dd1-8f4f-92f79941803b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "afdbe3bcb4672dc34e2888ab578a036639141ddc44b72af5883f175639ebc057"
